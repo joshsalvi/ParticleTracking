@@ -1,0 +1,289 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- saved from url=(0050)http://physics.georgetown.edu/matlab/tutorial.html -->
+<html><script type="text/javascript">window["_gaUserPrefs"] = { ioo : function() { return true; } }</script><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>location and tracking tutorial</title>
+  
+<style type="text/css"></style></head>
+<body alink="#ff0000" link="#000000" vlink="#000000">
+<table border="0" cellpadding="3" width="75%">
+  <tbody>
+    <tr>
+      <td width="10%"><img src="./location and tracking tutorial_files/matlab.jpg" height="54" width="58"></td>
+      <td width="90%">
+      <h4 align="left"><font color="#003399" face="Arial, Helvetica, sans-serif"> Particle location and tracking
+tutorial</font></h4>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2"><a href="http://physics.georgetown.edu/matlab/index.html">Home</a> | <font color="#003399">Tutorial</font> | <a href="http://physics.georgetown.edu/matlab/code.html">Code</a> </td>
+    </tr>
+  </tbody>
+</table>
+<hr align="left" width="75%">
+<h2><font color="#003399" face="Arial, Helvetica, sans-serif"> How to
+(pre)-track with Matlab</font></h2>
+<p><font face="Arial, Helvetica, sans-serif" size="5">Step 1: Location
+of particle positions</font></p>
+<table border="0" cellpadding="0" width="75%">
+  <tbody>
+    <tr>
+      <td>
+      <div align="justify"><font face="Arial, Helvetica, sans-serif">Ok,
+so you have worked really hard to get nice images of whatever particles
+you would like to locate and eventually track. The images can be in any
+format recognized by Matlab (.jpg, .tif, <span style="font-style: italic;">etc.</span>), but the features you wish to
+locate need to be well-resolved and compatible with the algorithms
+employed here.&nbsp; As a rule of thumb,&nbsp; you should be able to
+locate most blobs discernable by eye.&nbsp; <br>
+      </font></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<table style="width: 75%;" border="0" cellpadding="0">
+  <tbody>
+    <tr>
+      <td colspan="2" style="vertical-align: top; height: 60px;"><font face="Arial, Helvetica, sans-serif">Here is an image of some colloidal
+particles viewed in bright field. To read, display, and query this
+image out some, type the following at the matlab prompt.</font></td>
+    </tr>
+    <tr>
+      <td height="134" valign="top" width="21%"><img src="./location and tracking tutorial_files/test.jpg" alt="" height="109" width="128"></td>
+      <td valign="top" width="79%">
+      <p><strong><font face="Arial, Helvetica, sans-serif">&gt;&gt; a =
+double(imread('test.jpg'));<br>
+&gt;&gt; colormap('gray'), imagesc(a);<br>
+&gt;&gt; whos a</font></strong></p>
+      <blockquote>
+        <table border="0" cellpadding="0" width="100%">
+          <tbody>
+            <tr>
+              <td width="4%">&nbsp; </td>
+              <td width="16%">Name</td>
+              <td width="26%">Size</td>
+              <td align="right" width="20%">Bytes</td>
+              <td align="left" width="1%">&nbsp;</td>
+              <td align="left" width="33%"> Class</td>
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td align="right">&nbsp;</td>
+              <td align="left">&nbsp;</td>
+              <td align="left">&nbsp;</td>
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+              <td>a</td>
+              <td>165x192</td>
+              <td align="right">31680</td>
+              <td align="left">&nbsp;</td>
+              <td align="left">uint8 array</td>
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td align="right">&nbsp;</td>
+              <td align="left">&nbsp;</td>
+              <td align="left">&nbsp;</td>
+            </tr>
+            <tr>
+              <td colspan="6">Grand total is 31680 elements using 31680
+bytes</td>
+            </tr>
+          </tbody>
+        </table>
+      </blockquote>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<table border="0" cellpadding="0" width="75%">
+  <tbody>
+    <tr>
+      <td colspan="2" height="60" valign="top"><font face="Arial, Helvetica, sans-serif">The image above is perfect for
+locating, however the particles must be bright compared to the
+background for the locating to work properly. If your images look like
+those above do the following. If they already look bright on dark skip
+this step.</font></td>
+    </tr>
+    <tr>
+      <td height="112" valign="top" width="21%"><img src="./location and tracking tutorial_files/test_invert.jpg" alt="" height="109" width="128"></td>
+      <td valign="middle" width="79%">
+      <p><strong><font face="Arial, Helvetica, sans-serif">&gt;&gt; a =
+255-a;<br>
+&gt;&gt; colormap('gray'), imagesc(a);</font></strong></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<table border="0" cellpadding="0" width="75%">
+  <tbody>
+    <tr>
+      <td colspan="2" height="41" valign="top"><font face="Arial, Helvetica, sans-serif">Now it's time to use a macro. The
+first thing to do is spatially filter the image. To accomplish this
+type the following.</font></td>
+    </tr>
+    <tr>
+      <td height="112" valign="top" width="21%"><img src="./location and tracking tutorial_files/bpass.jpg" alt="" height="109" width="128"></td>
+      <td valign="middle" width="79%">
+      <p><strong><font face="Arial, Helvetica, sans-serif">&gt;&gt; b =
+bpass(a,1,10);<br>
+&gt;&gt; colormap('gray'), image(b);</font></strong></p>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" height="98" valign="top">
+      <p align="justify"><strong><font face="Arial, Helvetica, sans-serif">bpass</font></strong><font face="Arial, Helvetica, sans-serif"> is a spatial bandpass filter
+which smooths the image and subtracts the background off. The two
+numbers are the spatial wavelength cutoffs in pixels. The first one is
+almost always '1'. The second number should be something like the
+diameter of the 'blob's you want to find in pixels. Try a few values
+and use the one that gives you nice, sharply peaked circular blobs
+where your particles were; remember the numbers you used for bpass.</font></p>
+      <p align="justify"><font face="Arial, Helvetica, sans-serif">The
+next step is to identify the blobs that bpass has found as features.
+You will want to first use the <strong>pkfnd</strong> macro.</font></p>
+      <p><strong><font face="Arial, Helvetica, sans-serif">&gt;&gt; pk
+= pkfnd(b,60,11);</font></strong></p>
+      <p align="justify"><font face="Arial, Helvetica, sans-serif">This
+should give you the location of all of the peaks that are above the
+given threshold value here given by 60. This number will depend on how
+your final band-passed image looks. One way to roughly estimate the
+brightest feature is to do the following.<br>
+      <strong><br>
+&gt;&gt; max(max(b))</strong></font></p>
+      <blockquote>
+        <p>ans =<br>
+95.8860457991107</p>
+      </blockquote>
+      <p align="justify"><font face="Arial, Helvetica, sans-serif">The
+second parameter (set to 11) is roughly the diameter of the average
+feature to look for in pixels. This parameter is helpful for noisy
+data. If you have noisy data, read the preamble in <strong>pkfnd. </strong>As
+with all of this code, make sure that you read the complete
+documentation.</font></p>
+      <p><font face="Arial, Helvetica, sans-serif">The variable <strong>pk</strong>
+provides a first estimate of particle locations to pixel-level
+accuracy. &nbsp; You can get a more accurate and precise estimate of
+the particle location by calculating the centroid of each blob...<strong><br>
+      </strong></font><strong><font face="Arial, Helvetica, sans-serif"><br>
+&gt;&gt; cnt = cntrd(b,pk,15);<br>
+&gt;&gt; whos cnt</font></strong></p>
+      <table align="left" border="0" cellpadding="0" width="70%">
+        <tbody>
+          <tr>
+            <td width="4%">&nbsp; </td>
+            <td width="16%">Name</td>
+            <td width="26%">Size</td>
+            <td align="right" width="20%">Bytes</td>
+            <td align="left" width="1%">&nbsp;</td>
+            <td align="left" width="33%"> Class</td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td align="right">&nbsp;</td>
+            <td align="left">&nbsp;</td>
+            <td align="left">&nbsp;</td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td>cnt</td>
+            <td>7x3</td>
+            <td align="right">168</td>
+            <td align="left">&nbsp;</td>
+            <td align="left">double array</td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td align="right">&nbsp;</td>
+            <td align="left">&nbsp;</td>
+            <td align="left">&nbsp;</td>
+          </tr>
+          <tr>
+            <td colspan="6">Grand total is 21 elements using 168 bytes</td>
+          </tr>
+        </tbody>
+      </table>
+      <p><br>
+      </p>
+      <p>&nbsp;</p>
+      <p>&nbsp;</p>
+      <p align="justify"><font face="Arial, Helvetica, sans-serif">That's
+basically it! You have just successfully located, or pre-tracked a
+single image. Don't you feel awesome! Now you that you have done one,
+you can do them all. You need to understand little more than a for loop
+to make this work</font></p>
+      <p align="justify"><font face="Arial, Helvetica, sans-serif">Also,
+making sure that you have found your features to sub-pixel accuracy,
+please refer to the IDL <a href="http://www.physics.emory.edu/~weeks/idl/tracking.html">tutorial</a>.
+The commands to check for sub-pixel feature location are quite simple
+and can be implemented in a single matlab line given below.</font></p>
+      <p align="justify"><strong><font face="Arial, Helvetica, sans-serif">&gt;&gt; hist(mod(cnt(:,1),1),20);</font></strong></p>
+      <p align="justify"><font face="Arial, Helvetica, sans-serif">This
+will result in a histogram of the x-positions modulo 1, which should
+look flat if you have enough features and they are not single pixel
+biased.</font></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<hr align="left" width="75%">
+<p><font face="Arial, Helvetica, sans-serif" size="5">Step 2: Linking
+particle locations to form trajectories</font></p>
+<table border="0" cellpadding="0" width="75%">
+  <tbody>
+    <tr>
+      <td>
+      <div align="justify">
+      <p><font face="Arial, Helvetica, sans-serif">Now comes the really
+fun part. If you have successfully generated a set of files that
+contains the x,y and even z positions of your data, then you can track
+the particle positions over time. If you have done this in IDL, then
+the conversion to Matlab should be very straight forward, as the macro
+is exactly a replica of the IDL version.</font></p>
+      <p><font face="Arial, Helvetica, sans-serif">First thing you
+should do is read the documentation on <strong>track. </strong>It is
+essential that you put your position list in the required format. Once
+you have that, you are in the clear. Just invoke track with the
+parameters that are right for you and you should be fine. Here is an
+example of what to do.<br>
+      </font></p>
+      <p><font face="Arial, Helvetica, sans-serif"><strong>&gt;&gt;</strong>
+      <strong>tr = track(pos_lst, 3);</strong></font></p>
+      <p><font face="Arial, Helvetica, sans-serif">Here, <strong>pos_lst</strong>
+is the list of particle positions and the timestamp for each frame to
+be considered concatenated vertically. </font><font face="Arial, Helvetica, sans-serif">By passing an additional
+structure, param, in the function call, you can tweak the important
+parameters used in tracking:&nbsp; <br>
+      <br>
+      </font><font face="Arial, Helvetica, sans-serif"> <strong>&gt;&gt;</strong>
+      <strong>tr = track(pos_lst,
+3,param);<br>
+      </strong></font><font face="Arial, Helvetica, sans-serif"><strong><br>
+      </strong>Read the documentation of track to learn about varying
+these parameters.&nbsp; Start by typing</font></p>
+      <p><font face="Arial, Helvetica, sans-serif"><strong></strong><strong></strong></font></p>
+      <p><strong><font face="Arial, Helvetica, sans-serif">&gt;&gt;
+help track<br>
+      </font></strong></p>
+      <p><strong></strong>&lt;&gt;<font face="Arial, Helvetica, sans-serif">Good
+luck!</font></p>
+      </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+
+
+</body></html>
