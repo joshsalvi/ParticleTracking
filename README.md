@@ -16,3 +16,41 @@ First thing you should do is read the documentation on track. It is essential th
 tr = track(pos_lst, 3);
 
 Here, pos_lst is the list of particle positions and the timestamp for each frame to be considered concatenated vertically.
+
+
+%%%% EXAMPLE %%%%
+
+Use VideoReader objects to import videos.
+obj = VideoReader(filename,Name,Value); 
+video = read(obj,index);
+
+http://www.mathworks.com/help/matlab/ref/videoreader-class.html
+http://www.mathworks.com/help/matlab/ref/videoreader.read.html
+
+
+Read and play back the movie file xylophone.mp4.
+
+xyloObj = VideoReader('xylophone.mp4');
+
+nFrames = xyloObj.NumberOfFrames;
+vidHeight = xyloObj.Height;
+vidWidth = xyloObj.Width;
+Preallocate the movie structure.
+
+mov(1:nFrames) = ...
+    struct('cdata',zeros(vidHeight,vidWidth, 3,'uint8'),...
+           'colormap',[]);
+Read one frame at a time.
+
+for k = 1 : nFrames
+    mov(k).cdata = read(xyloObj,k);
+end
+Size a figure based on the video's width and height.
+
+hf = figure;
+set(hf, 'position', [150 150 vidWidth vidHeight])
+Play back the movie once at the video's frame rate.
+
+movie(hf, mov, 1, xyloObj.FrameRate);
+
+%%%%%%%%%%
