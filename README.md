@@ -3,6 +3,8 @@ ParticleTracking
 
 MATLAB particle tracking
 
+The program you will need to run is videoparticletracking.m. This program steps through the import, parsing, tracking, and analysis of video data. Instructions are included in the commented code.
+
 bpass is a spatial bandpass filter which smooths the image and subtracts the background off. The two numbers are the spatial wavelength cutoffs in pixels. The first one is almost always '1'. The second number should be something like the diameter of the 'blob's you want to find in pixels. Try a few values and use the one that gives you nice, sharply peaked circular blobs where your particles were; remember the numbers you used for bpass.
 
 b = bpass(a,1,10);
