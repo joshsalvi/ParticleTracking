@@ -137,7 +137,7 @@ end
 %% Plot your data
 
 % pick a particle
-nparticle = 60;
+nparticle = 1;
 
 % First, displacement in 2D
 hf = figure(3);
