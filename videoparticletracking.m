@@ -41,6 +41,7 @@ movie(hf, vidmov, 1, vidobj.FrameRate);
 
 %% Now we can prepare the video for particle tracking and analyze it
 tvec = linspace(0,nFrames/vidobj.FrameRate,nFrames);
+set(0,'DefaultFigureWindowStyle','docked') 
 
 % We want to have a high-contrast image with bright objects
 % Are the objects bright? (1=yes; 0=no);
@@ -64,7 +65,7 @@ end
 bpl=1; colormap('gray');
 figure(1); subplot(2,1,1);imagesc(vidmovnew(1).cdata);colormap('gray');
 while bpl == 1
-bp1 = 1;
+bp1 = input('Bandpass start (px): ');
 bp2 = input('Bandpass end (px): ');
 
 bpnew = bpass(vidmovnew(1).cdata,bp1,bp2);
@@ -96,7 +97,7 @@ pk2 = input('Diameter: ');
 ctrd = input('Centroid Diameter (REC:bp/2): ');
     vidmovnew(1).bp = bpass(vidmovnew(1).cdata,bp1,bp2);
     vidmovnew(1).pk = pkfnd(vidmovnew(1).bp,pk1,pk2);
-    vidmovnew(1).cntrd = cntrd(vidmovnew(1).bp,vidmovnew(1).pk,bp2/2+2);
+    vidmovnew(1).cntrd = cntrd(vidmovnew(1).bp,vidmovnew(1).pk,ctrd);
 figure(2);
 hist(mod(vidmovnew(1).cntrd(:,1),1),20);
 title(sprintf('%s %s','Number of features = ',num2str(length(vidmovnew(1).cntrd(:,1)))));
@@ -107,7 +108,7 @@ end
 for i = 1:nFrames
     vidmovnew(i).bp = bpass(vidmovnew(i).cdata,bp1,bp2);
     vidmovnew(i).pk = pkfnd(vidmovnew(i).bp,pk1,pk2);
-    vidmovnew(i).cntrd = cntrd(vidmovnew(i).bp,vidmovnew(i).pk,bp2/2+2);
+    vidmovnew(i).cntrd = cntrd(vidmovnew(i).bp,vidmovnew(i).pk,ctrd);
 end
 
 % Now we can track the particles
@@ -137,10 +138,11 @@ end
 %% Plot your data
 
 % pick a particle
-nparticle = 60;
+nparticle = 2;
 
 % First, displacement in 2D
 hf = figure(3);
+imagesc(vidmovnew(nparticle).cdata);colormap('gray');hold on;
 set(hf, 'position', [150 150 vidWidth vidHeight])
 plot(particles(nparticle).posinput(:,1),particles(nparticle).posinput(:,2));
 axis([0 vidWidth 0 vidHeight]);
@@ -156,7 +158,7 @@ subplot(3,1,2);
 plot(tvec,particles(nparticle).posinput(:,2)); ylabel('y');
 subplot(3,1,3);
 dsquared = particles(nparticle).posinput(:,1) + particles(nparticle).posinput(:,2);
-plot(dsquared); ylabel('x+y');
+plot(tvec,dsquared); ylabel('x+y');
 
 % Find the vector length and angle, plot this over time
 veclength = sqrt(particles(nparticle).posinput(:,1).^2 + particles(nparticle).posinput(:,2).^2);
@@ -169,5 +171,29 @@ plot(tvec,vecangle);ylabel('vector angle');
 
 
     
+%% Make a movie
+nparticle=1;
+% Use this to create your own custom plots
 
+% Try filtering? (1=yes 2=no)
+filteryn = 1;
+if filteryn ==1
+    [particles(nparticle).posinputfiltered(:,1)]=hampel(tvec,particles(nparticle).posinput(:,1),10,50);
+    [particles(nparticle).posinputfiltered(:,2)]=hampel(tvec,particles(nparticle).posinput(:,2),10,50);
+else
+    particles(nparticle).posinputfiltered(:,1)=particles(nparticle).posinput(:,1);
+    particles(nparticle).posinputfiltered(:,2)=particles(nparticle).posinput(:,2);
+end
+veclength = sqrt(particles(nparticle).posinputfiltered(:,1).^2 + particles(nparticle).posinputfiltered(:,2).^2);
+
+set(0,'DefaultFigureWindowStyle','default')
+h2=figure;
+subplot(2,1,2); plot(tvec,veclength,'k')
+for i = 1:300
+subplot(2,1,1)
+imagesc(vidmovnew(i).cdata);colormap('gray');
+hold on; scatter(particles(nparticle).posinputfiltered(i,1),particles(nparticle).posinputfiltered(i,2),'r.');
+subplot(2,1,2);hold on;plot(tvec(1:i),veclength(1:i),'r');
+h(i) = getframe(h2);
+end
 

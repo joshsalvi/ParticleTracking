@@ -65,7 +65,7 @@ end
 bpl=1; colormap('gray');
 figure(1); subplot(2,1,1);imagesc(vidmovnew(1).cdata);colormap('gray');
 while bpl == 1
-bp1 = 1;
+bp1 = input('Bandpass start (px): ');
 bp2 = input('Bandpass end (px): ');
 
 bpnew = bpass(vidmovnew(1).cdata,bp1,bp2);
@@ -97,7 +97,7 @@ pk2 = input('Diameter: ');
 ctrd = input('Centroid Diameter (REC:bp/2): ');
     vidmovnew(1).bp = bpass(vidmovnew(1).cdata,bp1,bp2);
     vidmovnew(1).pk = pkfnd(vidmovnew(1).bp,pk1,pk2);
-    vidmovnew(1).cntrd = cntrd(vidmovnew(1).bp,vidmovnew(1).pk,bp2/2+2);
+    vidmovnew(1).cntrd = cntrd(vidmovnew(1).bp,vidmovnew(1).pk,ctrd);
 figure(2);
 hist(mod(vidmovnew(1).cntrd(:,1),1),20);
 title(sprintf('%s %s','Number of features = ',num2str(length(vidmovnew(1).cntrd(:,1)))));
@@ -108,7 +108,7 @@ end
 for i = 1:nFrames
     vidmovnew(i).bp = bpass(vidmovnew(i).cdata,bp1,bp2);
     vidmovnew(i).pk = pkfnd(vidmovnew(i).bp,pk1,pk2);
-    vidmovnew(i).cntrd = cntrd(vidmovnew(i).bp,vidmovnew(i).pk,bp2/2+2);
+    vidmovnew(i).cntrd = cntrd(vidmovnew(i).bp,vidmovnew(i).pk,ctrd);
 end
 
 % Now we can track the particles
@@ -142,6 +142,7 @@ nparticle = 1;
 
 % First, displacement in 2D
 hf = figure(3);
+imagesc(vidmovnew(nparticle).cdata);colormap('gray');hold on;
 set(hf, 'position', [150 150 vidWidth vidHeight])
 plot(particles(nparticle).posinput(:,1),particles(nparticle).posinput(:,2));
 axis([0 vidWidth 0 vidHeight]);
@@ -172,13 +173,16 @@ plot(tvec,vecangle);ylabel('vector angle');
     
 %% Make a movie
 nparticle=1;
+%how much time?
+indstart=1;
+indend=100;
 % Use this to create your own custom plots
 
-% Try filtering?
+% Try filtering? (1=yes 2=no)
 filteryn = 1;
 if filteryn ==1
-    [particles(nparticle).posinputfiltered(:,1)]=hampel(tvec,particles(nparticle).posinput(:,1),10,50);
-    [particles(nparticle).posinputfiltered(:,2)]=hampel(tvec,particles(nparticle).posinput(:,2),10,50);
+    [particles(nparticle).posinputfiltered(:,1)]=hampel(tvec,particles(nparticle).posinput(:,1),100,5);
+    [particles(nparticle).posinputfiltered(:,2)]=hampel(tvec,particles(nparticle).posinput(:,2),100,5);
 else
     particles(nparticle).posinputfiltered(:,1)=particles(nparticle).posinput(:,1);
     particles(nparticle).posinputfiltered(:,2)=particles(nparticle).posinput(:,2);
@@ -187,12 +191,16 @@ veclength = sqrt(particles(nparticle).posinputfiltered(:,1).^2 + particles(npart
 
 set(0,'DefaultFigureWindowStyle','default')
 h2=figure;
-subplot(2,1,2); plot(tvec,veclength,'k')
-for i = 1:50
-subplot(2,1,1)
+subplot(4,1,2); plot(tvec(indstart:indend),particles(nparticle).posinputfiltered(indstart:indend,1),'k');ylabel('x')
+subplot(4,1,3); plot(tvec(indstart:indend),particles(nparticle).posinputfiltered(indstart:indend,2),'k');ylabel('y')
+subplot(4,1,4); plot(tvec(indstart:indend),veclength,'k');ylabel('vector length');
+for i = indstart:indend
+subplot(4,1,1)
 imagesc(vidmovnew(i).cdata);colormap('gray');
 hold on; scatter(particles(nparticle).posinputfiltered(i,1),particles(nparticle).posinputfiltered(i,2),'r.');
-subplot(2,1,2);hold on;plot(tvec(1:i),veclength(1:i),'r');
+subplot(4,1,2);hold on; plot(tvec(1:i),particles(nparticle).posinputfiltered(1:i,1),'r');ylabel('x')
+subplot(4,1,3); hold on;plot(tvec(1:i),particles(nparticle).posinputfiltered(1:i,2),'r');ylabel('y')
+subplot(4,1,4);hold on;plot(tvec(1:i),veclength(1:i),'r');
 h(i) = getframe(h2);
 end
 
