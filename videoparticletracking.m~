@@ -41,6 +41,7 @@ movie(hf, vidmov, 1, vidobj.FrameRate);
 
 %% Now we can prepare the video for particle tracking and analyze it
 tvec = linspace(0,nFrames/vidobj.FrameRate,nFrames);
+set(0,'DefaultFigureWindowStyle','docked') 
 
 % We want to have a high-contrast image with bright objects
 % Are the objects bright? (1=yes; 0=no);
@@ -156,7 +157,7 @@ subplot(3,1,2);
 plot(tvec,particles(nparticle).posinput(:,2)); ylabel('y');
 subplot(3,1,3);
 dsquared = particles(nparticle).posinput(:,1) + particles(nparticle).posinput(:,2);
-plot(dsquared); ylabel('x+y');
+plot(tvec,dsquared); ylabel('x+y');
 
 % Find the vector length and angle, plot this over time
 veclength = sqrt(particles(nparticle).posinput(:,1).^2 + particles(nparticle).posinput(:,2).^2);
@@ -169,5 +170,29 @@ plot(tvec,vecangle);ylabel('vector angle');
 
 
     
+%% Make a movie
+nparticle=1;
+% Use this to create your own custom plots
 
+% Try filtering?
+filteryn = 1;
+if filteryn ==1
+    [particles(nparticle).posinputfiltered(:,1)]=hampel(tvec,particles(nparticle).posinput(:,1),10,50);
+    [particles(nparticle).posinputfiltered(:,2)]=hampel(tvec,particles(nparticle).posinput(:,2),10,50);
+else
+    particles(nparticle).posinputfiltered(:,1)=particles(nparticle).posinput(:,1);
+    particles(nparticle).posinputfiltered(:,2)=particles(nparticle).posinput(:,2);
+end
+veclength = sqrt(particles(nparticle).posinputfiltered(:,1).^2 + particles(nparticle).posinputfiltered(:,2).^2);
+
+set(0,'DefaultFigureWindowStyle','default')
+h2=figure;
+subplot(2,1,2); plot(tvec,veclength,'k')
+for i = 1:50
+subplot(2,1,1)
+imagesc(vidmovnew(i).cdata);colormap('gray');
+hold on; scatter(particles(nparticle).posinputfiltered(i,1),particles(nparticle).posinputfiltered(i,2),'r.');
+subplot(2,1,2);hold on;plot(tvec(1:i),veclength(1:i),'r');
+h(i) = getframe(h2);
+end
 
