@@ -992,7 +992,7 @@ for i=istart:z
         
         % again goodenough keyword
         if quiet~=1
-            disp(strcat(num2str(i), ' of ' ,num2str(z), ' done.  Tracking  ',num2str(ntrk),' particles  ', num2str(n),' tracks total'));
+            %(strcat(num2str(i), ' of ' ,num2str(z), ' done.  Tracking  ',num2str(ntrk),' particles  ', num2str(n),' tracks total'));
         end
         bigresx(i-(ispan)+1:i,:) = resx(1:ispan,:);
         resx = zeros(zspan,n) - 1;
