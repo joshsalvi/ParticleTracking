@@ -193,7 +193,7 @@ set(0,'DefaultFigureWindowStyle','default')
 h2=figure;
 subplot(4,1,2); plot(tvec(indstart:indend),particles(nparticle).posinputfiltered(indstart:indend,1),'k');ylabel('x')
 subplot(4,1,3); plot(tvec(indstart:indend),particles(nparticle).posinputfiltered(indstart:indend,2),'k');ylabel('y')
-subplot(4,1,4); plot(tvec(indstart:indend),veclength,'k');ylabel('vector length');
+subplot(4,1,4); plot(tvec(indstart:indend),veclength(indstart:indend),'k');ylabel('vector length');
 for i = indstart:indend
 subplot(4,1,1)
 imagesc(vidmovnew(i).cdata);colormap('gray');
@@ -204,3 +204,8 @@ subplot(4,1,4);hold on;plot(tvec(1:i),veclength(1:i),'r');
 h(i) = getframe(h2);
 end
 
+% Write movie
+movwriteyn=0;
+if movwriteyn==1
+    movie2avi(h,'1.avi');
+end
