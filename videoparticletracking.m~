@@ -3,7 +3,7 @@
 clear all; close all;
 set(0,'DefaultFigureWindowStyle','docked') 
 % INPUT the filename of your video
-vid_in = '/Users/joshsalvi/Documents/Lab/Lab/Videos/Composite_(NTSC)_20140715_1552 -- increased stiffness multiple times toward 1E-3 then to -1E-3 near the end.. look for changes in frequency and steps.mp4';
+vid_in = '/Users/joshsalvi/Downloads/2014 10 21 cell 4 gamma 2  ODOR LIGHT 1_2014-10-21-181633-0000.mp4';
 % Be sure that you use one of the formats specified by VideoReader.getFileFormats()
 %    .3gp - 3GP File
 %    .avi - AVI File
@@ -138,7 +138,7 @@ end
 %% Plot your data
 
 % pick a particle
-nparticle = 1;
+nparticle = 2;
 
 % First, displacement in 2D
 hf = figure(3);
@@ -173,16 +173,13 @@ plot(tvec,vecangle);ylabel('vector angle');
     
 %% Make a movie
 nparticle=1;
-%how much time?
-indstart=1;
-indend=100;
 % Use this to create your own custom plots
 
 % Try filtering? (1=yes 2=no)
 filteryn = 1;
 if filteryn ==1
-    [particles(nparticle).posinputfiltered(:,1)]=hampel(tvec,particles(nparticle).posinput(:,1),100,5);
-    [particles(nparticle).posinputfiltered(:,2)]=hampel(tvec,particles(nparticle).posinput(:,2),100,5);
+    [particles(nparticle).posinputfiltered(:,1)]=hampel(tvec,particles(nparticle).posinput(:,1),10,50);
+    [particles(nparticle).posinputfiltered(:,2)]=hampel(tvec,particles(nparticle).posinput(:,2),10,50);
 else
     particles(nparticle).posinputfiltered(:,1)=particles(nparticle).posinput(:,1);
     particles(nparticle).posinputfiltered(:,2)=particles(nparticle).posinput(:,2);
@@ -191,21 +188,12 @@ veclength = sqrt(particles(nparticle).posinputfiltered(:,1).^2 + particles(npart
 
 set(0,'DefaultFigureWindowStyle','default')
 h2=figure;
-subplot(4,1,2); plot(tvec(indstart:indend),particles(nparticle).posinputfiltered(indstart:indend,1),'k');ylabel('x')
-subplot(4,1,3); plot(tvec(indstart:indend),particles(nparticle).posinputfiltered(indstart:indend,2),'k');ylabel('y')
-subplot(4,1,4); plot(tvec(indstart:indend),veclength(indstart:indend),'k');ylabel('vector length');
-for i = indstart:indend
-subplot(4,1,1)
+subplot(2,1,2); plot(tvec,veclength,'k')
+for i = 1:300
+subplot(2,1,1)
 imagesc(vidmovnew(i).cdata);colormap('gray');
 hold on; scatter(particles(nparticle).posinputfiltered(i,1),particles(nparticle).posinputfiltered(i,2),'r.');
-subplot(4,1,2);hold on; plot(tvec(1:i),particles(nparticle).posinputfiltered(1:i,1),'r');ylabel('x')
-subplot(4,1,3); hold on;plot(tvec(1:i),particles(nparticle).posinputfiltered(1:i,2),'r');ylabel('y')
-subplot(4,1,4);hold on;plot(tvec(1:i),veclength(1:i),'r');
+subplot(2,1,2);hold on;plot(tvec(1:i),veclength(1:i),'r');
 h(i) = getframe(h2);
 end
 
-% Write movie
-movwriteyn=0;
-if movwriteyn==1
-    movie2avi(h,'1.avi');
-end
