@@ -3,7 +3,7 @@
 clear all; close all;
 set(0,'DefaultFigureWindowStyle','docked') 
 % INPUT the filename of your video
-vid_in = '/Users/joshsalvi/Downloads/2014 10 21 cell 4 gamma 2  ODOR LIGHT 1_2014-10-21-181633-0000.mp4';
+vid_in = '/Users/joshsalvi/Documents/Lab/Lab/Videos/Composite_(NTSC)_20140715_1552 -- increased stiffness multiple times toward 1E-3 then to -1E-3 near the end.. look for changes in frequency and steps.mp4';
 % Be sure that you use one of the formats specified by VideoReader.getFileFormats()
 %    .3gp - 3GP File
 %    .avi - AVI File
