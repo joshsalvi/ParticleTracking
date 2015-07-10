@@ -3,7 +3,7 @@
 clear all; close all;
 set(0,'DefaultFigureWindowStyle','docked') 
 % INPUT the filename of your video
-vid_in = '/Users/joshsalvi/Documents/Lab/Lab/Videos/Composite_(NTSC)_20140715_1552 -- increased stiffness multiple times toward 1E-3 then to -1E-3 near the end.. look for changes in frequency and steps.mp4';
+vid_in = '/Users/joshsalvi/Documents/Lab/Lab/Videos/Zebrafish/High Speed/Event10.avi';
 % Be sure that you use one of the formats specified by VideoReader.getFileFormats()
 %    .3gp - 3GP File
 %    .avi - AVI File
@@ -75,7 +75,7 @@ bpnew = bpass(vidmovnew(1).cdata,bp1,bp2);
 
 % Plot for visualization
 subplot(2,1,2);
-imagesc(bpnew);
+imshow(bpnew);
 title(max(max(bpnew)));
 
 bpl = input('Try another? (1 = yes; 0 = no) ');
@@ -109,6 +109,7 @@ tpk = input('Repeat (1=yes;2=no)? ');
 end
 
 for i = 1:nFrames
+    warning off
     vidmovnew(i).bp = bpass(vidmovnew(i).cdata,bp1,bp2);
     vidmovnew(i).pk = pkfnd(vidmovnew(i).bp,pk1,pk2);
     vidmovnew(i).cntrd = cntrd(vidmovnew(i).bp,vidmovnew(i).pk,ctrd);
@@ -116,12 +117,31 @@ end
 
 % Now we can track the particles
 for i = 1:nFrames
+if isempty(vidmovnew(i).cntrd)==0 && isempty(vidmovnew(i).pk)==0
+isempty0(i) = 1;
+else
+isempty0(i) = 0;
+end
+end
+isempty01 = find(isempty0==1);
+
+for i = 1:nFrames
+    if isempty(vidmovnew(i).cntrd)==0 && isempty(vidmovnew(i).pk)==0
     poslist(i).x = vidmovnew(i).cntrd(:,1);
     poslist(i).y = vidmovnew(i).cntrd(:,2);
     poslist(i).brightness = vidmovnew(i).cntrd(:,3);
     poslist(i).radiusofgyration = vidmovnew(i).cntrd(:,4);
     poslist(i).time = tvec(i);
     numf(i) = length(vidmovnew(i).cntrd(:,1));
+    else
+    qm = findnearest(i,isempty01);m=isempty01(qm(1));
+    poslist(i).x = vidmovnew(m).cntrd(:,1);
+    poslist(i).y = vidmovnew(m).cntrd(:,2);
+    poslist(i).brightness = vidmovnew(m).cntrd(:,3);
+    poslist(i).radiusofgyration = vidmovnew(m).cntrd(:,4);
+    poslist(i).time = tvec(m);
+    numf(i) = length(vidmovnew(m).cntrd(:,1));
+    end
 end
 
 NumFeatures = min(numf);
@@ -136,16 +156,40 @@ for i = 1:NumFeatures
     particles(i).radiusofgyration(j,:) = poslist(j).radiusofgyration(i); 
     end
 end
-% We have now tracked each of the particles
+
+m = 1;
+for j = 1:nFrames
+    for k = 1:length(poslist(j).x)
+    particles2pos(m,1) = poslist(j).x(k);
+    particles2pos(m,2) = poslist(j).y(k);
+    particles2pos(m,3) = tvec(j);
+    m = m+1;
+    end
+end
+
+% Track the particles
+trackthr = 500; % max disp
+trparam.good = 100;
+trparam.mem = 300;
+trparam.dim = 2;
+trackedparticles = track(particles2pos,trackthr,trparam);
+numparticles = max(trackedparticles(:,4));
+for j = 1:numparticles
+    particletime(j) = length(find(trackedparticles(:,4)==j));
+end
+for j = 1:numparticles
+    particledata{j} = trackedparticles(find(trackedparticles(:,4)==j),:);
+end
+
 
 %% Plot your data
 
 % pick a particle
-nparticle = 2;
+nparticle = 1;
 
 % First, displacement in 2D
 hf = figure(3);
-imagesc(vidmovnew(nparticle).cdata);colormap('gray');hold on;
+imshow(vidmovnew(nparticle).cdata);colormap('gray');hold on;
 set(hf, 'position', [150 150 vidWidth vidHeight])
 plot(particles(nparticle).posinput(:,1),particles(nparticle).posinput(:,2));
 axis([0 vidWidth 0 vidHeight]);
