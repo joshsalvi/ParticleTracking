@@ -3,7 +3,7 @@
 clear all; close all;
 set(0,'DefaultFigureWindowStyle','docked') 
 % INPUT the filename of your video
-vid_in = '/Users/joshsalvi/Documents/Lab/Lab/Videos/Zebrafish/High Speed/Event10.avi';
+vid_in = '/Users/joshsalvi/Documents/Lab/Lab/Videos/Zebrafish/20150709/20150709-1605-1p5Xms222/Composite_(NTSC)_20150709_1604.mov';
 % Be sure that you use one of the formats specified by VideoReader.getFileFormats()
 %    .3gp - 3GP File
 %    .avi - AVI File
@@ -41,6 +41,7 @@ tvec = linspace(0,nFrames/vidobj.FrameRate,nFrames);
 hf = figure;
 set(hf, 'position', [150 150 vidWidth vidHeight])
 movie(hf, vidmov, 1, vidobj.FrameRate);
+
 
 %% Now we can prepare the video for particle tracking and analyze it
 tvec = linspace(0,nFrames/vidobj.FrameRate,nFrames);
