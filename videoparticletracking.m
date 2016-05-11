@@ -3,7 +3,7 @@
 clear all; close all;
 set(0,'DefaultFigureWindowStyle','docked') 
 % INPUT the filename of your video
-vid_in = '/Users/joshsalvi/Documents/Lab/Lab/Videos/Zebrafish/20150709/20150709-1605-1p5Xms222/Composite_(NTSC)_20150709_1604.mov';
+vid_in = '/Users/joshsalvi/Documents/Lab/Lab/Videos/Tungsten/20160302/Composite_(NTSC)_20160302_1630.mov';
 % Be sure that you use one of the formats specified by VideoReader.getFileFormats()
 %    .3gp - 3GP File
 %    .avi - AVI File
@@ -50,7 +50,7 @@ set(0,'DefaultFigureWindowStyle','docked')
 % We want to have a high-contrast image with bright objects
 % Are the objects bright? (1=yes; 0=no);
 % Also, note that we are only using the first dimension (:,:,1)
-bright = 0;
+bright = 1;
 if bright == 1
     for i = 1:nFrames
         vidmovnew(i).cdata = vidmov(i).cdata(:,:,1);
@@ -157,7 +157,7 @@ for i = 1:NumFeatures
     particles(i).radiusofgyration(j,:) = poslist(j).radiusofgyration(i); 
     end
 end
-
+clear particles2pos
 m = 1;
 for j = 1:nFrames
     for k = 1:length(poslist(j).x)
@@ -173,6 +173,7 @@ trackthr = 500; % max disp
 trparam.good = 100;
 trparam.mem = 300;
 trparam.dim = 2;
+trparam.quiet = 0;
 trackedparticles = track(particles2pos,trackthr,trparam);
 numparticles = max(trackedparticles(:,4));
 for j = 1:numparticles
@@ -186,7 +187,7 @@ end
 %% Plot your data
 
 % pick a particle
-nparticle = 1;
+nparticle = 5;
 
 % First, displacement in 2D
 hf = figure(3);
